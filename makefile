@@ -12,6 +12,7 @@ HOST_DIR := $(BUILD_DIR)/host
 HCC_DIR := $(BUILD_DIR)/hcc
 TEMPLEOS_TREE := $(BUILD_DIR)/templeos
 TOSZ := $(HOST_DIR)/tosz
+REDSEA := tools/linux/redsea.py
 TEMPLEOS_IMAGE ?= $(BUILD_DIR)/templeos.img
 TEMPLEOS_ISO ?= $(BUILD_DIR)/TOS_Distro.ISO
 TEMPLEOS_ISO_URL ?= https://github.com/cia-foundation/TempleOS/releases/download/final/TOS_Distro.ISO
@@ -21,7 +22,7 @@ HOLY_LUA := deps/holylua
 LUA_ENTRY := $(HOLY_LUA)/src/templeos/lua.hc
 LAUNCHER := src/apps/lua_interpreter.hc
 
-.PHONY: all host hcc-check prepare source-iso download-iso check qemu qemu-iso clean tools
+.PHONY: all host hcc-check prepare source-iso redsea-image download-iso check qemu qemu-iso clean tools
 
 all: check
 
@@ -53,6 +54,9 @@ prepare: hcc-check
 source-iso: prepare
 	@command -v $(GENISOIMAGE) >/dev/null 2>&1 || { echo "error: genisoimage not found" >&2; exit 1; }
 	$(GENISOIMAGE) -quiet -R -J -V TEMPLEOS_SRC -o $(SOURCE_ISO) $(TEMPLEOS_TREE)
+
+redsea-image: prepare
+	python3 $(REDSEA) $(TEMPLEOS_TREE) $(BUILD_DIR)/templeos-redsea.img
 
 download-iso:
 	@command -v $(CURL) >/dev/null 2>&1 || { echo "error: curl not found" >&2; exit 1; }
