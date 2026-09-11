@@ -7,6 +7,26 @@ Linux-only TOSZ utility source is under tools/linux/. Run "make" on Linux to
 build that utility as build/TOSZ. The HolyC kernel and compiler still must be
 compiled from inside TempleOS, as described below.
 
+Build and QEMU testing
+----------------------
+Run `make` to compile the Linux utility, validate the Lua launcher and validate
+the HolyC Lua entry point with `hcc`. Run `make prepare` to create a
+TempleOS-shaped tree under `build/templeos/`. The tree can be copied into a
+TempleOS disk or ISO from inside TempleOS.
+
+To boot an existing TempleOS disk image:
+
+    make qemu TEMPLEOS_IMAGE=/path/to/templeos.img
+
+To boot an existing ISO without rebuilding it:
+
+    make qemu-iso TEMPLEOS_ISO=/path/to/TempleOS.iso
+
+The Makefile does not generate a TempleOS bootable image on Linux: TempleOS
+uses its own RedSea image format and its kernel/compiler are built inside
+TempleOS. `xorriso` can create ISO9660 images, but those are not replacements
+for a bootable TempleOS image.
+
 Lua integration
 ---------------
 The minimal functional HolyC port of Lua is included as the `deps/holylua`
