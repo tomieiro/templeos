@@ -8,6 +8,7 @@
 @mod path=src/Compiler role=compiler
 @mod path=src/Adam role=system
 @mod path=src/Apps role=applications
+@surface path=src/apps/lua_interpreter.hc name=lua-interpreter-entry invocation=include
 @mod path=src/Demo role=examples
 @mod path=src/0000Boot role=boot
 @mod path=src/Misc role=utilities
