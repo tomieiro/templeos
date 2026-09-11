@@ -14,6 +14,11 @@ the HolyC Lua entry point with `hcc`. Run `make prepare` to create a
 TempleOS-shaped tree under `build/templeos/`. The tree can be copied into a
 TempleOS disk or ISO from inside TempleOS.
 
+Run `make source-iso` to package that tree as `build/templeos-source.iso`.
+When `make qemu TEMPLEOS_IMAGE=/path/to/templeos.img` is used, this source ISO
+is attached as a second CD-ROM so it can be mounted and copied from inside the
+TempleOS VM.
+
 To boot an existing TempleOS disk image:
 
     make qemu TEMPLEOS_IMAGE=/path/to/templeos.img
