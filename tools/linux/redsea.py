@@ -59,7 +59,7 @@ def collect(root: Path):
     return items
 
 
-def make_image(source: Path, output: Path, megabytes: int) -> None:
+def make_image(source: Path, output: Path, megabytes: int, bootcd: Path | None = None) -> None:
     files = collect(source)
     dirs = set()
     for path, _ in files:
@@ -127,18 +127,44 @@ def make_image(source: Path, output: Path, megabytes: int) -> None:
         return b"".join(entries).ljust(size * BLOCK, b"\0")
 
     output.parent.mkdir(parents=True, exist_ok=True)
+    prefix = 24 * 2048
     with output.open("wb") as stream:
-        stream.truncate(volume_blocks * BLOCK)
-        stream.seek(0)
+        stream.truncate(prefix + volume_blocks * BLOCK)
+        if bootcd:
+            stage1 = bootcd.read_bytes()[:2048].ljust(2048, b"\0")
+            stream.seek(21 * 2048)
+            stream.write(stage1)
+            catalog = bytearray(2048)
+            catalog[0] = 1
+            catalog[1:9] = b"TempleOS"
+            catalog[30:32] = struct.pack("<H", 0xAA55)
+            catalog[32] = 0x88
+            catalog[33] = 0
+            catalog[34:36] = struct.pack("<H", 4)
+            catalog[40:44] = struct.pack("<I", 21)
+            stream.seek(20 * 2048)
+            stream.write(catalog)
+            pvd = bytearray(2048)
+            pvd[0:7] = b"\x01CD001\x01"
+            pvd[40:48] = b"TEMPLEOS"
+            pvd[80:88] = struct.pack("<I", (prefix + volume_blocks * BLOCK) // 2048)
+            pvd[128:132] = struct.pack("<H", 2048)
+            stream.seek(16 * 2048)
+            stream.write(pvd)
+            term = bytearray(2048)
+            term[0:7] = b"\xffCD001\x01"
+            stream.seek(19 * 2048)
+            stream.write(term)
+        stream.seek(prefix)
         stream.write(header)
         stream.write(bitmap)
-        stream.seek(data_start * BLOCK)
+        stream.seek(prefix + data_start * BLOCK)
         stream.write(directory_data(Path(".")))
         for directory in dir_names:
-            stream.seek(dir_cluster[directory] * BLOCK)
+            stream.seek(prefix + dir_cluster[directory] * BLOCK)
             stream.write(directory_data(directory))
         for path, data in files:
-            stream.seek(file_clusters[path] * BLOCK)
+            stream.seek(prefix + file_clusters[path] * BLOCK)
             stream.write(data)
 
 
@@ -147,9 +173,10 @@ def main() -> int:
     parser.add_argument("source", type=Path)
     parser.add_argument("output", type=Path)
     parser.add_argument("--size-mb", type=int, default=64)
+    parser.add_argument("--bootcd", type=Path, help="historical 2048-byte TempleOS CD boot stage")
     args = parser.parse_args()
     try:
-        make_image(args.source, args.output, args.size_mb)
+        make_image(args.source, args.output, args.size_mb, args.bootcd)
     except (OSError, ValueError) as error:
         print(f"redsea: error: {error}", file=sys.stderr)
         return 1

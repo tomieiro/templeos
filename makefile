@@ -13,6 +13,7 @@ HCC_DIR := $(BUILD_DIR)/hcc
 TEMPLEOS_TREE := $(BUILD_DIR)/templeos
 TOSZ := $(HOST_DIR)/tosz
 REDSEA := tools/linux/redsea.py
+BOOTCD := bootstrap/templeos-2013/0000boot/bootcd.bin
 TEMPLEOS_IMAGE ?= $(BUILD_DIR)/templeos.img
 TEMPLEOS_ISO ?= $(BUILD_DIR)/TOS_Distro.ISO
 TEMPLEOS_ISO_URL ?= https://github.com/cia-foundation/TempleOS/releases/download/final/TOS_Distro.ISO
@@ -56,7 +57,7 @@ source-iso: prepare
 	$(GENISOIMAGE) -quiet -R -J -V TEMPLEOS_SRC -o $(SOURCE_ISO) $(TEMPLEOS_TREE)
 
 redsea-image: prepare
-	python3 $(REDSEA) $(TEMPLEOS_TREE) $(BUILD_DIR)/templeos-redsea.img
+	python3 $(REDSEA) $(TEMPLEOS_TREE) $(BUILD_DIR)/templeos-redsea.iso --bootcd $(BOOTCD)
 
 download-iso:
 	@command -v $(CURL) >/dev/null 2>&1 || { echo "error: curl not found" >&2; exit 1; }
