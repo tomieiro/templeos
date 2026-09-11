@@ -1,0 +1,9 @@
+/build/
+*.o
+*.bin
+*.BIN
+*.map
+*.MAP
+*.log
+*.LOG
+TOSZTEMP*
