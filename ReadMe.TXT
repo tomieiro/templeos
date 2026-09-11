@@ -1,5 +1,12 @@
                            TempleOS
 
+Repository layout
+-----------------
+The TempleOS source tree is under src/. Documentation is under docs/ and the
+Linux-only TOSZ utility source is under tools/linux/. Run "make" on Linux to
+build that utility as build/TOSZ. The HolyC kernel and compiler still must be
+compiled from inside TempleOS, as described below.
+
 You can't do much until you burn a TempleOS CD/DVD from the ISO file
 and boot it, or you aim your virtual machine's CD/DVD at the ISO file
 and boot.  TempleOS files are compressed and the source code can only be 
