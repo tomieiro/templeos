@@ -25,7 +25,15 @@ To boot an existing TempleOS disk image:
 
 To boot an existing ISO without rebuilding it:
 
+    make qemu-iso
+
+The first execution downloads the official base ISO to
+`build/TOS_Distro.ISO`. Later executions reuse the existing file. To use a
+different ISO, override `TEMPLEOS_ISO`:
+
     make qemu-iso TEMPLEOS_ISO=/path/to/TempleOS.iso
+
+The download can also be performed explicitly with `make download-iso`.
 
 The Makefile does not generate a TempleOS bootable image on Linux: TempleOS
 uses its own RedSea image format and its kernel/compiler are built inside
