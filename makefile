@@ -61,6 +61,12 @@ redsea-image: prepare
 	rm -rf $(TEMPLEOS_TREE)
 	mkdir -p $(TEMPLEOS_TREE)
 	cp -a $(BOOTSTRAP)/root/. $(TEMPLEOS_TREE)/
+	mkdir -p $(TEMPLEOS_TREE)/deps/holylua/src/platform/templeos $(TEMPLEOS_TREE)/deps/holylua/src/templeos $(TEMPLEOS_TREE)/Apps
+	cp -a deps/holylua/src/platform/templeos/. $(TEMPLEOS_TREE)/deps/holylua/src/platform/templeos/
+	cp -a deps/holylua/src/templeos/lua.hc $(TEMPLEOS_TREE)/deps/holylua/src/templeos/
+	grep -v '/usr/local/include/tos.HH' deps/holylua/src/platform/templeos/templeos_api.hc > $(TEMPLEOS_TREE)/deps/holylua/src/platform/templeos/templeos_api.hc
+	sed 's#"../../deps/holylua/src/templeos/lua.hc"#"/deps/holylua/src/templeos/lua.hc"#' src/apps/lua_interpreter.hc > $(TEMPLEOS_TREE)/Apps/LuaInterpreter.HC
+	cp src/personal_menu.dd $(TEMPLEOS_TREE)/PersonalMenu.DD.Z
 	python3 $(REDSEA) $(TEMPLEOS_TREE) $(BUILD_DIR)/templeos-redsea.iso --bootcd $(BOOTCD)
 
 download-iso:

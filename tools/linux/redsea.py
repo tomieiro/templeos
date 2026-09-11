@@ -133,7 +133,7 @@ def make_image(source: Path, output: Path, megabytes: int, bootcd: Path | None =
         for path, data in files:
             if path.parent == directory:
                 attr = ATTR_CONTIGUOUS
-                if path.name.lower().endswith(".z"):
+                if path.name.lower().endswith(".z") and str(path).lower() != "personalmenu.dd.z":
                     attr |= ATTR_COMPRESSED
                 entries.append(entry(path.name, attr, file_clusters[path], len(data)))
         return b"".join(entries).ljust(size * BLOCK, b"\0")

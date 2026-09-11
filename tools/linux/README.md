@@ -16,5 +16,9 @@ RedSea volume, and the matching compressed bootstrap tree. It has been verified
 to execute the boot stage and initialize the TempleOS kernel; the final desktop
 startup still requires further runtime compatibility work.
 
+`make redsea-image` also stages the HolyC Lua runtime, a TempleOS launcher, and
+the project's personal menu. The runtime source is kept uncompressed so it can
+be compiled from inside TempleOS with its native `Compiler.BIN.Z`.
+
 `redsea_extract.py` is the provenance tool used to extract raw compressed files
 from the matching historical ISO. It does not decompress or rewrite them.
