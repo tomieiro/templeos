@@ -21,6 +21,7 @@ ENTRY = 64
 NAME_BYTES = 38
 REDSEA_SIGNATURE = 0x88
 ATTR_DIR = 0x10
+ATTR_COMPRESSED = 0x400
 ATTR_CONTIGUOUS = 0x800
 
 
@@ -76,12 +77,15 @@ def make_image(source: Path, output: Path, megabytes: int, bootcd: Path | None =
     )
     root_blocks = blocks((3 + children(Path("."))) * ENTRY)
 
+    # TempleOS places RedSea immediately after the LBA 21 boot image, at
+    # CD LBA 22 (88 512-byte blocks).
+    volume_offset = 22 * 4 if bootcd else 0
     # Layout: RedSea header, bitmap, root directory, then file data.
     volume_blocks = megabytes * 1024 * 1024 // BLOCK
     bitmap_blocks = max(1, (volume_blocks + BLOCK * 8 - 1) // (BLOCK * 8))
     data_start = 1 + bitmap_blocks
-    dir_cluster[Path(".")] = data_start
-    next_cluster = data_start + root_blocks
+    dir_cluster[Path(".")] = volume_offset + data_start
+    next_cluster = volume_offset + data_start + root_blocks
     dir_blocks = {directory: blocks((2 + children(directory)) * ENTRY) for directory in dir_names}
     for directory in dir_names:
         dir_cluster[directory] = next_cluster
@@ -91,20 +95,23 @@ def make_image(source: Path, output: Path, megabytes: int, bootcd: Path | None =
     for path, data in files:
         file_clusters[path] = next_cluster
         next_cluster += blocks(len(data))
-    if next_cluster > volume_blocks:
+    if next_cluster - volume_offset > volume_blocks:
         raise ValueError("source tree does not fit in requested image size")
 
     header = bytearray(BLOCK)
     header[3] = REDSEA_SIGNATURE
-    struct.pack_into("<qqqqq", header, 8, 0, volume_blocks, data_start, bitmap_blocks, 1)
+    struct.pack_into(
+        "<qqqqq", header, 8, volume_offset, volume_blocks,
+        dir_cluster[Path(".")], bitmap_blocks, 1
+    )
     struct.pack_into("<H", header, 510, 0xAA55)
 
     bitmap = bytearray(bitmap_blocks * BLOCK)
     def reserve(start: int, count: int) -> None:
         for cluster in range(start, start + count):
-            bitmap[cluster // 8] |= 1 << (cluster % 8)
-    reserve(0, data_start)
-    reserve(data_start, root_blocks)
+            bit = cluster - (volume_offset + data_start)
+            if bit >= 0:
+                bitmap[bit // 8] |= 1 << (bit % 8)
     reserve(dir_cluster[Path(".")], root_blocks)
     for directory, cluster in dir_cluster.items():
         if directory != Path("."):
@@ -115,33 +122,53 @@ def make_image(source: Path, output: Path, megabytes: int, bootcd: Path | None =
     def directory_data(directory: Path) -> bytes:
         entries = []
         cluster = dir_cluster[directory]
-        entries.append(entry(".", ATTR_DIR | ATTR_CONTIGUOUS, cluster, BLOCK))
+        size = root_blocks if directory == Path(".") else dir_blocks[directory]
+        entries.append(entry(".", ATTR_DIR | ATTR_CONTIGUOUS, cluster, size * BLOCK))
         parent = directory.parent if directory != Path(".") else directory
         entries.append(entry("..", ATTR_DIR | ATTR_CONTIGUOUS, dir_cluster[parent], BLOCK))
         for child in sorted(d for d in dir_names if d.parent == directory):
             entries.append(entry(child.name, ATTR_DIR | ATTR_CONTIGUOUS, dir_cluster[child], BLOCK))
         for path, data in files:
             if path.parent == directory:
-                entries.append(entry(path.name, ATTR_CONTIGUOUS, file_clusters[path], len(data)))
-        size = root_blocks if directory == Path(".") else dir_blocks[directory]
+                attr = ATTR_CONTIGUOUS
+                if path.name.lower().endswith(".z"):
+                    attr |= ATTR_COMPRESSED
+                entries.append(entry(path.name, attr, file_clusters[path], len(data)))
         return b"".join(entries).ljust(size * BLOCK, b"\0")
 
     output.parent.mkdir(parents=True, exist_ok=True)
-    prefix = 24 * 2048
+    prefix = volume_offset * BLOCK
     with output.open("wb") as stream:
         stream.truncate(prefix + volume_blocks * BLOCK)
         if bootcd:
-            stage1 = bootcd.read_bytes()[:2048].ljust(2048, b"\0")
+            stage1 = bytearray(bootcd.read_bytes()[:2048].ljust(2048, b"\0"))
+            stage2 = next(
+                (path for path in file_clusters if str(path).lower() == "0000boot/0000kernel.bin.c"),
+                None,
+            )
+            if stage2 is None:
+                raise ValueError("missing required boot file: 0000Boot/0000Kernel.BIN.C")
+            stage2_cluster = file_clusters[stage2]
+            stage2_size = next(data for path, data in files if path == stage2)
+            stage2_blocks = (len(stage2_size) + 2047) // 2048
+            shift_blocks = stage2_cluster & 3
+            if shift_blocks:
+                stage2_blocks += 1
+            struct.pack_into("<IHH", stage1, 0x88, stage2_cluster >> 2, stage2_blocks, shift_blocks)
             stream.seek(21 * 2048)
             stream.write(stage1)
             catalog = bytearray(2048)
             catalog[0] = 1
-            catalog[1:9] = b"TempleOS"
+            catalog[1] = 0
+            catalog[4:12] = b"TempleOS"
             catalog[30:32] = struct.pack("<H", 0xAA55)
             catalog[32] = 0x88
             catalog[33] = 0
-            catalog[34:36] = struct.pack("<H", 4)
+            catalog[38:40] = struct.pack("<H", 4)
             catalog[40:44] = struct.pack("<I", 21)
+            words = list(struct.unpack("<16H", catalog[:32]))
+            words[14] = (-sum(words)) & 0xFFFF
+            catalog[:32] = struct.pack("<16H", *words)
             stream.seek(20 * 2048)
             stream.write(catalog)
             pvd = bytearray(2048)
@@ -149,8 +176,22 @@ def make_image(source: Path, output: Path, megabytes: int, bootcd: Path | None =
             pvd[40:48] = b"TEMPLEOS"
             pvd[80:88] = struct.pack("<I", (prefix + volume_blocks * BLOCK) // 2048)
             pvd[128:132] = struct.pack("<H", 2048)
+            root_cluster = dir_cluster[Path(".")]
+            pvd[152:160] = struct.pack("<I", root_cluster) + struct.pack(">I", root_cluster)
+            pvd[314:329] = b"TempleOS RedSea"
+            pvd[877] = 1
             stream.seek(16 * 2048)
             stream.write(pvd)
+            boot_record = bytearray(2048)
+            boot_record[0:7] = b"\x00CD001\x01"
+            boot_record[7:30] = b"EL TORITO SPECIFICATION"
+            boot_record[0x47:0x4B] = struct.pack("<I", 20)
+            stream.seek(17 * 2048)
+            stream.write(boot_record)
+            supplementary = bytearray(pvd)
+            supplementary[0] = 2
+            stream.seek(18 * 2048)
+            stream.write(supplementary)
             term = bytearray(2048)
             term[0:7] = b"\xffCD001\x01"
             stream.seek(19 * 2048)
@@ -161,10 +202,10 @@ def make_image(source: Path, output: Path, megabytes: int, bootcd: Path | None =
         stream.seek(prefix + data_start * BLOCK)
         stream.write(directory_data(Path(".")))
         for directory in dir_names:
-            stream.seek(prefix + dir_cluster[directory] * BLOCK)
+            stream.seek(prefix + (dir_cluster[directory] - volume_offset) * BLOCK)
             stream.write(directory_data(directory))
         for path, data in files:
-            stream.seek(prefix + file_clusters[path] * BLOCK)
+            stream.seek(prefix + (file_clusters[path] - volume_offset) * BLOCK)
             stream.write(data)
 
 

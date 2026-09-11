@@ -13,7 +13,8 @@ HCC_DIR := $(BUILD_DIR)/hcc
 TEMPLEOS_TREE := $(BUILD_DIR)/templeos
 TOSZ := $(HOST_DIR)/tosz
 REDSEA := tools/linux/redsea.py
-BOOTCD := bootstrap/templeos-2013/0000boot/bootcd.bin
+BOOTSTRAP := bootstrap/templeos-v5.03
+BOOTCD := $(BOOTSTRAP)/0000boot/bootcd.bin
 TEMPLEOS_IMAGE ?= $(BUILD_DIR)/templeos.img
 TEMPLEOS_ISO ?= $(BUILD_DIR)/TOS_Distro.ISO
 TEMPLEOS_ISO_URL ?= https://github.com/cia-foundation/TempleOS/releases/download/final/TOS_Distro.ISO
@@ -57,9 +58,7 @@ source-iso: prepare
 	$(GENISOIMAGE) -quiet -R -J -V TEMPLEOS_SRC -o $(SOURCE_ISO) $(TEMPLEOS_TREE)
 
 redsea-image: prepare
-	mkdir -p $(TEMPLEOS_TREE)/0000boot $(TEMPLEOS_TREE)/compiler
-	cp bootstrap/templeos-2013/0000boot/0000kernel.bin.c $(TEMPLEOS_TREE)/0000boot/
-	cp bootstrap/templeos-2013/compiler/compiler.bin $(TEMPLEOS_TREE)/compiler/
+	cp -a $(BOOTSTRAP)/root/. $(TEMPLEOS_TREE)/
 	python3 $(REDSEA) $(TEMPLEOS_TREE) $(BUILD_DIR)/templeos-redsea.iso --bootcd $(BOOTCD)
 
 download-iso:

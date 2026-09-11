@@ -11,7 +11,9 @@ entries, and file contents. `make redsea-image` runs the same operation after
 preparing the current source tree and adding the 2013 bootstrap kernel/compiler
 pair under `0000boot/` and `compiler/`.
 
-This is a filesystem image generator, not yet a complete TempleOS boot-image
-builder. The historical CD boot stage and handoff are now placed at the
-documented offsets, but the current source still does not provide a matching
-`Kernel.BIN.C`; QEMU boot success therefore remains unverified.
+The generated hybrid ISO includes the V5.03 El Torito stage, an absolute-cluster
+RedSea volume, and the matching compressed bootstrap tree. It has been verified
+to load the kernel and compiler and reach the TempleOS desktop under QEMU.
+
+`redsea_extract.py` is the provenance tool used to extract raw compressed files
+from the matching historical ISO. It does not decompress or rewrite them.

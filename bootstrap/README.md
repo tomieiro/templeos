@@ -28,3 +28,9 @@ TempleOS boot/install tooling in a compatible TempleOS environment.
 That commit does not contain the CD boot record, MBR, or a complete disk
 image, so this pair is not independently bootable either. It is kept separate
 from the 2013 seed because the formats and source tree differ.
+
+The `root/` subtree and `0000boot/bootcd.bin` were extracted once from the
+matching V5.03 ISO whose SHA-1 is
+`1a1ec79990e21fa3d66ac680009da63d3ac512b0`. They preserve the compressed
+RedSea startup environment, allowing future `make redsea-image` builds without
+using the downloaded ISO as an input.
