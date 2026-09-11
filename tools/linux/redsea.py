@@ -49,20 +49,22 @@ def entry(name: str, attr: int, cluster: int, size: int) -> bytes:
 
 def collect(root: Path):
     items = []
+    directories = set()
     for path in sorted(root.rglob("*")):
         rel = path.relative_to(root)
         if path.is_symlink():
             raise ValueError(f"symlinks are not supported: {rel}")
         if path.is_file():
             items.append((rel, path.read_bytes()))
-        elif not path.is_dir():
+        elif path.is_dir():
+            directories.add(rel)
+        else:
             raise ValueError(f"unsupported entry: {rel}")
-    return items
+    return items, directories
 
 
 def make_image(source: Path, output: Path, megabytes: int, bootcd: Path | None = None) -> None:
-    files = collect(source)
-    dirs = set()
+    files, dirs = collect(source)
     for path, _ in files:
         parent = path.parent
         while parent != Path("."):
@@ -125,7 +127,7 @@ def make_image(source: Path, output: Path, megabytes: int, bootcd: Path | None =
         size = root_blocks if directory == Path(".") else dir_blocks[directory]
         entries.append(entry(".", ATTR_DIR | ATTR_CONTIGUOUS, cluster, size * BLOCK))
         parent = directory.parent if directory != Path(".") else directory
-        entries.append(entry("..", ATTR_DIR | ATTR_CONTIGUOUS, dir_cluster[parent], BLOCK))
+        entries.append(entry("..", ATTR_DIR | ATTR_CONTIGUOUS, dir_cluster[parent], 0))
         for child in sorted(d for d in dir_names if d.parent == directory):
             entries.append(entry(child.name, ATTR_DIR | ATTR_CONTIGUOUS, dir_cluster[child], BLOCK))
         for path, data in files:
