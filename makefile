@@ -51,7 +51,7 @@ prepare: hcc-check
 	mkdir -p $(TEMPLEOS_TREE)/deps/holylua/src
 	cp -a src/. $(TEMPLEOS_TREE)/
 	cp -a deps/holylua/src/. $(TEMPLEOS_TREE)/deps/holylua/src/
-	sed 's#"../../deps/holylua/#"/deps/holylua/#' $(LAUNCHER) > $(TEMPLEOS_TREE)/apps/lua_interpreter.hc
+	sed 's#"../../deps/holylua/#"::/apps/lua/#' $(LAUNCHER) > $(TEMPLEOS_TREE)/apps/lua_interpreter.hc
 
 source-iso: prepare
 	@command -v $(GENISOIMAGE) >/dev/null 2>&1 || { echo "error: genisoimage not found" >&2; exit 1; }
@@ -61,11 +61,14 @@ redsea-image: prepare
 	rm -rf $(TEMPLEOS_TREE)
 	mkdir -p $(TEMPLEOS_TREE)
 	cp -a $(BOOTSTRAP)/root/. $(TEMPLEOS_TREE)/
-	mkdir -p $(TEMPLEOS_TREE)/deps/holylua/src/platform/templeos $(TEMPLEOS_TREE)/deps/holylua/src/templeos $(TEMPLEOS_TREE)/Apps
-	cp -a deps/holylua/src/platform/templeos/. $(TEMPLEOS_TREE)/deps/holylua/src/platform/templeos/
-	cp -a deps/holylua/src/templeos/lua.hc $(TEMPLEOS_TREE)/deps/holylua/src/templeos/
-	grep -v '/usr/local/include/tos.HH' deps/holylua/src/platform/templeos/templeos_api.hc > $(TEMPLEOS_TREE)/deps/holylua/src/platform/templeos/templeos_api.hc
-	sed 's#"../../deps/holylua/src/templeos/lua.hc"#"/deps/holylua/src/templeos/lua.hc"#' src/apps/lua_interpreter.hc > $(TEMPLEOS_TREE)/Apps/LuaInterpreter.HC
+	mkdir -p $(TEMPLEOS_TREE)/Apps/Lua/src/platform/templeos $(TEMPLEOS_TREE)/Apps/Lua/src/templeos
+	cp -a deps/holylua/src/platform/templeos/. $(TEMPLEOS_TREE)/Apps/Lua/src/platform/templeos/
+	cp -a deps/holylua/src/templeos/lua.hc $(TEMPLEOS_TREE)/Apps/Lua/src/templeos/
+	sed -i 's#"../platform/templeos/lua_gc.hc"#"::/Apps/Lua/src/platform/templeos/lua_gc.hc"#' $(TEMPLEOS_TREE)/Apps/Lua/src/templeos/lua.hc
+	sed -i 's@#include "\([a-z_]*\.hc\)"@#include "::/Apps/Lua/src/platform/templeos/\1"@' $(TEMPLEOS_TREE)/Apps/Lua/src/platform/templeos/*.hc
+	grep -v '/usr/local/include/tos.HH' deps/holylua/src/platform/templeos/templeos_api.hc > $(TEMPLEOS_TREE)/Apps/Lua/src/platform/templeos/templeos_api.hc
+	sed -i 's/printf(/Print(/g' $(TEMPLEOS_TREE)/Apps/Lua/src/platform/templeos/templeos_api.hc
+	sed 's#"../../deps/holylua/src/templeos/lua.hc"#"::/Apps/Lua/src/templeos/lua.hc"#' src/apps/lua_interpreter.hc > $(TEMPLEOS_TREE)/Apps/LuaInterpreter.HC
 	cp $(BOOTSTRAP)/lua_personal_menu.dd $(TEMPLEOS_TREE)/PersonalMenu.DD.Z
 	python3 $(REDSEA) $(TEMPLEOS_TREE) $(BUILD_DIR)/templeos-redsea.iso --bootcd $(BOOTCD)
 
