@@ -13,7 +13,8 @@ pair under `0000boot/` and `compiler/`.
 
 The generated hybrid ISO includes the V5.03 El Torito stage, an absolute-cluster
 RedSea volume, and the matching compressed bootstrap tree. It has been verified
-to load the kernel and compiler and reach the TempleOS desktop under QEMU.
+to execute the boot stage and initialize the TempleOS kernel; the final desktop
+startup still requires further runtime compatibility work.
 
 `redsea_extract.py` is the provenance tool used to extract raw compressed files
 from the matching historical ISO. It does not decompress or rewrite them.

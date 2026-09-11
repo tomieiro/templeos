@@ -58,6 +58,8 @@ source-iso: prepare
 	$(GENISOIMAGE) -quiet -R -J -V TEMPLEOS_SRC -o $(SOURCE_ISO) $(TEMPLEOS_TREE)
 
 redsea-image: prepare
+	rm -rf $(TEMPLEOS_TREE)
+	mkdir -p $(TEMPLEOS_TREE)
 	cp -a $(BOOTSTRAP)/root/. $(TEMPLEOS_TREE)/
 	python3 $(REDSEA) $(TEMPLEOS_TREE) $(BUILD_DIR)/templeos-redsea.iso --bootcd $(BOOTCD)
 

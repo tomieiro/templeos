@@ -16,7 +16,7 @@
 @surface path=tools/linux/redsea.py name=redsea-image-generator invocation=python3
 @inv id=holy-c-build status=external evidence=read_me.txt claim=HolyC requires the TempleOS compiler
 @inv id=generated-files status=ignored evidence=.gitignore claim=build outputs and logs are not tracked
-@inv id=bootstrap-seed status=verified evidence=bootstrap/README.md claim=V5.03 boot, kernel, compiler, and compressed RedSea startup artifacts rebuild a bootable ISO without using the base ISO as a build input
+@inv id=bootstrap-seed status=partial evidence=bootstrap/README.md claim=V5.03 boot, kernel, compiler, and compressed RedSea startup artifacts rebuild an ISO that initializes the kernel without using the base ISO as a build input
 @resolver id=kernel-build path=src/kernel/kernel.prj note=build from within TempleOS
 @resolver id=linux-tools path=makefile command=make
 @resolver id=bootstrap-check path=makefile command="find bootstrap -type f -print; file bootstrap/templeos-2013/0000boot/* bootstrap/templeos-2013/compiler/compiler.bin"
