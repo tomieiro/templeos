@@ -1,0 +1,9 @@
+$WW,1$TempleOS has a string indirection feature implemented with the same hash symbol table entry as $FG,2$#define$FG$ macros, $LK,"HTT_DEFINE_STR",A="MN:HTT_DEFINE_STR"$.  Support for string lists is also provided, but it's not very efficient, though, you can make a hash table with a list using $LK,"HashDefineLstAdd",A="MN:HashDefineLstAdd"$().  See $LK,"::/adam/doldoc/doc_init.hc",A="FF:::/adam/doldoc/doc_init.hc,HashDefineLstAdd"$.
+
+If you have an $FG,2$@$FG$ as the first char of a define list entry, it is an alias for the prev entry num.
+
+Each task can load its own Define strings.  Remember, when a $LK,"Hash",A="HI:Hash"$ table is searched for a string, if it is not found, the parent task's table is searched.
+
+The $LK,"DolDoc",A="FI:::/doc/dol_doc_overview.dd"$ framework supports text that changes based on entries in the task's symbol table.  Set a text entry with a $FG,2$D=$FG$ arg, as in $FG,2$$$TX,"",D="DD_MYSTRING"$$$FG$.  See $LK,"::/demo/doldoc/define_str.hc"$, $LK,"::/adam/a_define.hc"$ and $LK,"::/doc/mem_overview.dd"$.
+
+See $LK,"::/demo/define.hc"$.
