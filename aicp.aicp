@@ -10,7 +10,7 @@
 @mod path=src/adam role=system
 @mod path=src/apps role=applications
 @surface path=src/apps/lua_interpreter.hc name=lua-interpreter-entry invocation=include
-@inv id=lua-bootstrap status=packaged evidence=makefile claim=redsea-image stages the HolyC Lua runtime and launcher into the bootable V5.03 image; native TempleOS compilation remains an in-guest action
+@inv id=lua-bootstrap status=packaged evidence=makefile claim=redsea-image stages the HolyC Lua runtime, launcher, and minimal personal menu into the bootable V5.03 image; native TempleOS compilation remains an in-guest action
 @mod path=src/demo role=examples
 @mod path=src/misc role=utilities
 @mod path=tools/linux role=host-tools

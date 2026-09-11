@@ -1,0 +1,5 @@
+$WW,1$Lua runtime bootstrap menu
+
+$MA,LM="Cd(\"::/Apps\");Dir;\n"$
+
+$SP+PU,"Lua Interpreter",LM="#include \"::/Apps/LuaInterpreter\"",BI=1$
