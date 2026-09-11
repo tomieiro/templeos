@@ -1,0 +1,3 @@
+[submodule "deps/holylua"]
+	path = deps/holylua
+	url = https://github.com/tomieiro/holy-lua.git

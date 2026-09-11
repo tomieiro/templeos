@@ -1,6 +1,8 @@
 @aicp version=1
 @stack name=templeos language=HolyC,asm host=Linux
 @agent source=src docs=docs tools=tools
+@mod path=deps/holylua role=lua-runtime dependency=git-submodule
+@inv id=hcc status=external evidence=read_me.txt claim=HolyC validation requires hcc from holyc-lang
 @inv id=naming status=enforced evidence=git-files claim=file names use snake_case and directory names use lowercase
 @mod path=src/Kernel role=kernel entry=src/kernel/kernel.prj
 @mod path=src/Compiler role=compiler
