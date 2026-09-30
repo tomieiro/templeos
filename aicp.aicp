@@ -2,6 +2,8 @@
 @stack name=templeos language=HolyC,asm host=Linux
 @agent source=src docs=docs tools=tools
 @mod path=deps/holylua role=lua-runtime dependency=git-submodule
+@mod path=LICENSE role=repository-license dependency=NOTICE
+@mod path=NOTICE role=third-party-provenance dependency=docs/templeos/credits.dd
 @mod path=bootstrap role=historical-bootstrap dependency=generated-artifacts
 @inv id=hcc status=external evidence=read_me.txt claim=HolyC validation requires hcc from holyc-lang
 @inv id=naming status=enforced evidence=git-files claim=file names use snake_case and directory names use lowercase
@@ -17,6 +19,7 @@
 @surface path=tools/linux/redsea.py name=redsea-image-generator invocation=python3
 @inv id=holy-c-build status=external evidence=read_me.txt claim=HolyC requires the TempleOS compiler
 @inv id=generated-files status=ignored evidence=.gitignore claim=build outputs and logs are not tracked
+@inv id=license-notices status=enforced evidence=makefile claim=source and RedSea image staging includes the repository license, third-party notice, and Lua license
 @inv id=bootstrap-seed status=partial evidence=bootstrap/README.md claim=V5.03 boot, kernel, compiler, and compressed RedSea startup artifacts rebuild an ISO that initializes the kernel without using the base ISO as a build input
 @resolver id=kernel-build path=src/kernel/kernel.prj note=build from within TempleOS
 @resolver id=linux-tools path=makefile command=make
@@ -24,3 +27,4 @@
 @resolver id=redsea-image path=makefile command="make redsea-image"
 @resolver id=redsea-qemu path=makefile command="make redsea-image && qemu-system-x86_64 -m 512M -cdrom build/templeos-redsea.iso -boot d"
 @task id=maintain-map action=update-on-structure-change
+@risk id=third-party-rights status=unresolved evidence=NOTICE claim=some historical TempleOS materials lack complete permission or license records

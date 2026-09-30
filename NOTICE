@@ -1,0 +1,66 @@
+TempleOS notices and third-party provenance
+============================================
+
+TempleOS was written by Terry A. Davis and released as public domain. The
+project's original credits are preserved in docs/templeos/credits.dd. This file
+summarizes the material called out there and the dependency added by this
+repository; it does not replace notices embedded in individual files.
+
+Separately licensed or public-domain material
+----------------------------------------------
+
+* deps/holylua is a Git submodule derived from Lua. The upstream Lua source is
+  Copyright (C) 1994-2026 Lua.org, PUC-Rio and is distributed under the Lua
+  license reproduced in deps/holylua/LICENSE. Copies staged into generated
+  images remain subject to that license.
+
+* src/kernel/font_std.hc is credited to FreeDOS and identified as public
+  domain by the original TempleOS credits.
+
+* src/misc/bible.txt is Project Gutenberg Etext #10, The King James Bible.
+  Its complete historical notice is preserved at the beginning of that file.
+  It identifies the text as public domain in the United States and specifies
+  conditions for distribution under the PROJECT GUTENBERG trademark.
+
+* Webster's Dictionary data used by the autocomplete system is credited to
+  Project Gutenberg in the original TempleOS credits.
+
+* Mountain and wolf graphics used by TempleOS games are credited as derived
+  from public-domain-photos.com and identified as public domain by the
+  original TempleOS credits.
+
+Materials with unresolved permission or licensing
+-------------------------------------------------
+
+The public-domain notice in LICENSE does not grant rights to the following
+third-party material. The repository does not contain enough evidence to
+establish redistribution permission or complete license terms:
+
+* src/kernel/font_cyrillic.hc is credited to an Orient Display image. The
+  original TempleOS credits explicitly say it was used without permission.
+
+* src/misc/pci_devices.dd is credited to pcidatabase.com; no license is
+  recorded in the repository.
+
+* src/demo/tohtmltotxtdemo/to_html.hc credits an unidentified author of
+  CppHtml; no license is recorded in the repository.
+
+* src/adam/a_math_ode.hc is described as adapted from Numerical Recipes in C;
+  no permission or license for that adaptation is recorded here.
+
+* src/kernel/mem/m_alloc_free.hc and src/kernel/compress.hc are described as
+  based on an algorithm seen at Ticketmaster and an unspecified magazine,
+  respectively; the precise sources and terms are not recorded.
+
+* Some game art was commissioned from Cody Rigby, but the repository does not
+  record the applicable copyright assignment or license.
+
+* The credits mention ATA definitions originally taken from Linux, shell
+  scripts by Erik van der Karbargenbok, and other code or technical material
+  found in documentation or on the internet. Exact source versions and terms
+  are not recorded.
+
+Historical bootstrap files under bootstrap/ reproduce earlier TempleOS
+artifacts and may contain the same materials and provenance described above.
+Resolve the items in this section before relying on the repository for a
+redistribution that requires complete third-party rights clearance.

@@ -51,6 +51,8 @@ prepare: hcc-check
 	mkdir -p $(TEMPLEOS_TREE)/deps/holylua/src
 	cp -a src/. $(TEMPLEOS_TREE)/
 	cp -a deps/holylua/src/. $(TEMPLEOS_TREE)/deps/holylua/src/
+	cp LICENSE NOTICE $(TEMPLEOS_TREE)/
+	cp deps/holylua/LICENSE $(TEMPLEOS_TREE)/deps/holylua/LICENSE
 	sed 's#"../../deps/holylua/#"::/apps/lua/#' $(LAUNCHER) > $(TEMPLEOS_TREE)/apps/lua_interpreter.hc
 
 source-iso: prepare
@@ -64,6 +66,9 @@ redsea-image: prepare
 	mkdir -p $(TEMPLEOS_TREE)/Apps/Lua/src/platform/templeos $(TEMPLEOS_TREE)/Apps/Lua/src/templeos
 	cp -a deps/holylua/src/platform/templeos/. $(TEMPLEOS_TREE)/Apps/Lua/src/platform/templeos/
 	cp -a deps/holylua/src/templeos/lua.hc $(TEMPLEOS_TREE)/Apps/Lua/src/templeos/
+	cp LICENSE $(TEMPLEOS_TREE)/LICENSE.TXT
+	cp NOTICE $(TEMPLEOS_TREE)/NOTICE.TXT
+	cp deps/holylua/LICENSE $(TEMPLEOS_TREE)/Apps/Lua/LICENSE.TXT
 	sed -i 's#"../platform/templeos/lua_gc.hc"#"::/Apps/Lua/src/platform/templeos/lua_gc.hc"#' $(TEMPLEOS_TREE)/Apps/Lua/src/templeos/lua.hc
 	sed -i 's@#include "\([a-z_]*\.hc\)"@#include "::/Apps/Lua/src/platform/templeos/\1"@' $(TEMPLEOS_TREE)/Apps/Lua/src/platform/templeos/*.hc
 	grep -v '/usr/local/include/tos.HH' deps/holylua/src/platform/templeos/templeos_api.hc > $(TEMPLEOS_TREE)/Apps/Lua/src/platform/templeos/templeos_api.hc
