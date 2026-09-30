@@ -1,11 +1,11 @@
 @aicp version=1
 @stack name=templeos language=HolyC,asm host=Linux
-@agent source=src docs=docs tools=tools
+@agent source=src docs=README.md,docs tools=tools
 @mod path=deps/holylua role=lua-runtime dependency=git-submodule
 @mod path=LICENSE role=repository-license dependency=NOTICE
 @mod path=NOTICE role=third-party-provenance dependency=docs/templeos/credits.dd
 @mod path=bootstrap role=historical-bootstrap dependency=generated-artifacts
-@inv id=hcc status=external evidence=read_me.txt claim=HolyC validation requires hcc from holyc-lang
+@inv id=hcc status=external evidence=README.md claim=HolyC validation requires hcc from holyc-lang
 @inv id=naming status=enforced evidence=git-files claim=file names use snake_case and directory names use lowercase
 @mod path=src/kernel role=kernel entry=src/kernel/kernel.prj
 @mod path=src/compiler role=compiler
@@ -17,7 +17,7 @@
 @mod path=src/misc role=utilities
 @mod path=tools/linux role=host-tools
 @surface path=tools/linux/redsea.py name=redsea-image-generator invocation=python3
-@inv id=holy-c-build status=external evidence=read_me.txt claim=HolyC requires the TempleOS compiler
+@inv id=holy-c-build status=external evidence=README.md claim=HolyC requires the TempleOS compiler
 @inv id=generated-files status=ignored evidence=.gitignore claim=build outputs and logs are not tracked
 @inv id=license-notices status=enforced evidence=makefile claim=source and RedSea image staging includes the repository license, third-party notice, and Lua license
 @inv id=bootstrap-seed status=partial evidence=bootstrap/README.md claim=V5.03 boot, kernel, compiler, and compressed RedSea startup artifacts rebuild an ISO that initializes the kernel without using the base ISO as a build input
